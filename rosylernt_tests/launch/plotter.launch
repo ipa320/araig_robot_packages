@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+<node name="transform_odom_to_twist" pkg="topic_tools" type="transform"
+    args="/odom /robot/velocity geometry_msgs/TwistStamped 'geometry_msgs.msg.TwistStamped(
+      header=m.header,twist=m.twist.twist)' --import geometry_msgs"/>
+
+<node name="transform_odom_to_pose" pkg="topic_tools" type="transform"
+  args="/odom /data/interpreter/location/robot geometry_msgs/PoseStamped 'geometry_msgs.msg.PoseStamped(
+    header=m.header,pose=m.pose.pose)' --import geometry_msgs"/>
+
+  <node name="plotter" type="rqt_multiplot" pkg="rqt_multiplot"
+    args="--multiplot-config $(find rosylernt_tests)/config/test1_multiplot.xml --multiplot-run-all">
+    <remap from="/robot/odom" to="/odom" />
+  </node>
+  
+
+</launch>
+

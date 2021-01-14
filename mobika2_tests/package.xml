@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>mobika2_tests</name>
+  <version>0.0.0</version>
+  <description>The mobika2_tests package</description>
+
+  <maintainer email="ruichao.wu@ipa.fraunhofer.de">ruichao</maintainer>
+
+  <author email="tejas.kumar.shastha@ipa.fraunhofer.de">tejas</author>
+  <author email="ruichao.wu@ipa.fraunhofer.de">ruichao</author>
+
+  <license>Apache 2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+  </export>
+</package>

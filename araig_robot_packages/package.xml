@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>araig_robot_packages</name>
+  <version>1.0.0</version>
+  <description>The araig_robot_packages package</description>
+
+  <maintainer email="tejas.kumar.shastha@ipa.fraunhofer.de">Tejas</maintainer>
+  <maintainer email="ruichao.wu@ipa.fraunhofer.de">ruichao</maintainer>
+
+  <license>Apache 2.0</license>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>mobika2_tests</exec_depend>
+  <exec_depend>rosylernt_tests</exec_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

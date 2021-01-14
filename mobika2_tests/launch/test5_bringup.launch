@@ -1,0 +1,69 @@
+<launch>   
+
+    <rosparam command="load" file="$(find mobika2_tests)/config/test5.yaml" />
+
+<!-- test runner -->
+    <node pkg="araig_test_runners" type="test_5_obstacle_avoidance" name="test_5_obstacle_avoidance" output="screen">
+    </node>
+
+<!-- interpreter -->
+    <node pkg="araig_interpreters" type="goal_interpreter" name="goal_interpreter_node" output="screen">
+        <remap from="/goal" to="/data/interpreter/goal"/>
+        <remap from="/start" to="/signal/runner/enable_robot"/>
+    </node>
+
+    <arg name="origin_pos_goal" default="1.3 0.68 0 0.785 0 0"/>
+    <node pkg="tf" type="static_transform_publisher" name="goal_tf" args=" $(arg origin_pos_goal)  /map /goal 1"/>
+<!-- calculators -->
+    <node pkg="araig_calculators" type="comparePoseNode" name="robot_reached_goal_node" output="screen">
+        <remap from="/topic_1" to="/data/interpreter/location/robot"/>
+        <remap from="/topic_2" to="/data/interpreter/goal"/>
+        <remap from="/signal" to="/signal/calc/robot_reached_goal"/>
+    </node>
+
+    <!-- get /odom from robot-->
+    <node name="focus_odom_x" pkg="topic_tools" type="transform" args="/odom /data/robot/twist/linear/x std_msgs/Float64 'm.twist.twist.linear.x'" />
+    <node pkg="araig_calculators" type="compareParamNode" name="robot_has_stopped_node" output="screen">
+        <!-- map to robot -->
+        <remap from="/topic_1" to="/data/robot/twist/linear/x"/>
+        <remap from="/signal" to="/signal/calc/robot_has_stopped"/>
+    </node>
+    
+    <!-- ONLY for TEST use /amcl_pose as the location of robot -->
++   <node pkg="araig_calculators" type="comparePoseNode" name="robot_in_collision_node" output="screen">
+        <remap from="/topic_1" to="/data/interpreter/location/robot"/>
+        <remap from="/topic_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/signal" to="/signal/calc/robot_in_collision"/>
+    </node>
+    
+    <node pkg="araig_calculators" type="compareTopicsNode" name="goal_and_stop_node" output="screen">
+        <remap from="/topic_1" to="/signal/calc/robot_has_stopped"/>
+        <remap from="/topic_2" to="/signal/calc/robot_reached_goal"/>
+        <remap from="/signal" to="/signal/calc/robot_reached_goal_and_stopped"/>
+    </node>
+
+    <node pkg="araig_calculators" type="stopWatchNode" name="goal_time_node" output="screen">
+        <remap from="/topic_1" to="/signal/runner/enable_robot"/>
+        <remap from="/topic_2" to="/signal/calc/robot_reached_goal_and_stopped"/>
+        <remap from="/time" to="/data/calc/goal_time"/>
+    </node>
+
+    <!-- X Y Z Y P R transform of marvel origin frame wrt map frame. Needs to be physically measured. -->
+    <arg name="origin_pos" default="1.52 -2.37 0 0.55 0 0"/>
+
+    <!-- Publish static TF of the origin anchor to map -->
+    <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
+
+    <node pkg="marvelmind_nav" type="hedge_rcv_bin" name="hedge_rcv_bin" />
+
+    <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
+     <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
+    <remap from="/marvel_interpreter/beacon7" to="/data/interpreter/location/obstacle"/>
+    </node>
+
+    <node pkg="araig_calculators" type="rosbaggerNode" name="bag_video" output="screen" >
+        <remap from="/start" to="/signal/runner/enable_robot"/>
+        <remap from="/stop" to="/signal/calc/robot_reached_goal_and_stopped"/>
+    </node>
+
+</launch>

@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="robot" default="mobika" />
+
+  <!--Start URDF Robot Model -->
+  <include file="$(find mb2_bringup)/launch/description.launch">
+    <arg name="robot" value="$(arg robot)" />
+  </include>
+
+  <!--Start Motor Controller -->
+  <include file="$(find mb2_bringup)/launch/control.launch">
+    <arg name="robot" value="$(arg robot)" />
+  </include>
+
+  <!--Start Joysick -->
+  <include file="$(find mb2_bringup)/launch/teleop.launch">
+    <arg name="robot" value="$(arg robot)" />
+  </include>
+
+  <!--Start Laser Scanner -->
+  <include file="$(find mb2_bringup)/launch/rplidar.launch">
+  </include>
+
+  <!--Start Laser Filter -->
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
+    <rosparam command="load" file="$(find mb2_hardware_config)/robots/$(arg robot)/config/laser_filter_chain.yaml" />
+    <remap from="scan" to="scan_raw" />
+    <remap from="scan_filtered" to="scan" />
+  </node>
+
+  <!--Start Kinect -->
+  <!--include file="$(find mb2_bringup)/launch/start_kinect.launch">
+  </include-->
+
+  <!-- Static TF publisher for Camera -->
+  <node pkg="tf" type="static_transform_publisher" name="base_to_camera_static_tf"
+        args="0 0 1.37 0 0.4 0 base_link camera_base 100" />
+
+  <!--Start Pico-Flexx-->
+  <include file="$(find mb2_bringup)/launch/pico_flexx.launch">
+  </include>
+
+  <!-- Static TF publisher for Pico-Flexx -->
+  <node pkg="tf" type="static_transform_publisher" name="base_to_picoflexx_static_tf"
+        args="0 0 1.25 1.57 0.0 -2.15 base_link pico_flexx_link 100" />
+
+  <!--Start Pointcloud to Laserscan on Pico-Flexx -->
+  <!--include file="$(find mb2_bringup)/launch/pc2scan.launch">
+  </include-->
+
+  <!--Create Dummy TF for Navigation -->
+  <node pkg="tf" type="static_transform_publisher" name="odom_odom"
+        args="0 0 0 0 0 0 1 odom odom_combined 100" />
+
+   <!--Start Navigation -->
+<!--  <include file="$(find mb2_bringup)/launch/ipa_navigation.launch">
+    <arg name="map" value="/home/robot/araig/maps/map_biolab.yaml" />
+  </include>
+-->
+  <!--Set initial Pose -->
+  <include file="$(find mb2_bringup)/launch/set_initialpose.launch">
+  </include>
+
+  <!--Start battery status -->
+  <include file="$(find mb2_bringup)/launch/battery_status.launch">
+  </include>
+
+  <!--Start Tablet -->
+  <!--include file="$(find mb2_bringup)/launch/roboclaw.launch">
+  </include-->
+
+  <!--Start Approach Object -->
+  <!--include file="$(find mb2_bringup)/launch/ipa_approach_object.launch">
+  </include-->
+
+  <!--Start Approach Object extension -->
+  <!--include file="$(find mb2_bringup)/launch/move_linear.launch">
+  </include-->
+
+  <!--Start Websocket for Tablet GUI -->
+  <!--include file="$(find mb2_bringup)/launch/websocket.launch">
+  </include-->
+
+  <!--Start Behavior Tree -->
+  <!--include file="$(find mb2_bringup)/launch/ipa_behavior_tree.launch">
+  </include-->
+
+   <!--  Periodic Motor Run for EMV TEST ONLY -->
+   <!--node pkg="mb2_bringup" type="move_wheels.py" name="move_wheels" respawn="false" /-->
+   <!--node pkg="mb2_bringup" type="move_tablet.py" name="move_tablet" respawn="false"/-->
+
+</launch>
+

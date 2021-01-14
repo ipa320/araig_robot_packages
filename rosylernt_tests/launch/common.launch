@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="src1" default ="/dev/video2" />
+  <arg name="src2" default ="/dev/video4" />
+  <arg name="port" default="/dev/ttyACM0" />
+
+  <node name="sensor_marvel" type="hedge_rcv_bin" pkg="marvelmind_nav" args="$(arg port)"/>
+  
+  <node name="sensor_usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="$(arg src1)" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
+
+  <node name="sensor_usb_cam2" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="$(arg src2)" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
+
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/sensor_usb_cam/image_raw"/>
+    <param name="autosize" value="true" />
+  </node>
+
+  <node name="image_view2" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/sensor_usb_cam2/image_raw"/>
+    <param name="autosize" value="true" />
+  </node>
+
+</launch>
+

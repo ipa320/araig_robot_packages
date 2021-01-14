@@ -1,0 +1,69 @@
+<launch>   
+
+    <arg name="port" default="/dev/ttyACM0" />
+    <arg name="cam1" default ="/dev/video2" />
+    <arg name="cam2" default ="/dev/video4" />
+
+<!-- load configs -->
+    <rosparam command="load" file="$(find rosylernt_tests)/config/test5.yaml" />
+    <!-- X Y Z Y P R transform of marvel origin frame wrt map frame. Needs to be physically measured. -->
+    <arg name="origin_pos" default="1.52 -2.37 0 0.55 0 0"/>
+    <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
+
+<!-- sensors -->
+    <include file="$(find rosylernt_tests)/launch/common.launch">
+        <args name="src1" value="$(arg cam1)" />
+        <args name="src2" value="$(arg cam2)" />
+        <args name="port" value="$(arg port)" />
+    </include>
+
+<!-- robot -->
+    <node name="focus_pose_x" pkg="topic_tools" type="transform"
+    args="/emergency_stop_state /signal/robot/emergency araig_msgs/BoolStamped
+    'araig_msgs.msg.BoolStamped(data=True if m.emergency_state==1 else False)'
+    --import cob_msgs araig_msgs"/>
+
+<!-- test runner -->
+    <node pkg="araig_test_runners" type="test_5_without_goal" name="test_5_rosyler" output="screen">
+    </node>
+
+<!-- interpreters -->
+    <node pkg="araig_interpreters" type="velocity_interpreter" name="velocity_interpreter_node" output="screen">
+        <remap from="/start" to="/signal/runner/enable_robot"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/velocity" to="/base/twist_controller/command"/>
+    </node>
+
+    <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
+        <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
+        <remap from="/marvel_interpreter/beacon8" to="/data/interpreter/location/obstacle"/>
+    </node>
+
+<!-- calculators -->
+    <node pkg="araig_calculators" type="calc_displacement_topics_node" name="displacement_robot_obstacle_node" output="screen">
+        <remap from="/topic_1" to="/data/interpreter/location/robot"/>
+        <remap from="/topic_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/displacement_angular" to="/data/calc/displacement/angular"/>
+        <remap from="/displacement_position" to="/data/calc/displacement/position"/>
+    </node>
+
+    <!-- get /odom from robot-->
+    <node name="focus_odom_x" pkg="topic_tools" type="transform" args="/base/odometry_controller/odometry /data/robot/twist/linear/x std_msgs/Float64 'm.twist.twist.linear.x'" />
+    <node pkg="araig_calculators" type="comp_param_node" name="robot_has_stopped_node" output="screen">
+        <!-- map to robot -->
+        <remap from="/topic_1" to="/data/robot/twist/linear/x"/>
+        <remap from="/signal" to="/signal/calc/robot_has_stopped"/>
+    </node>
+
+    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
+        <remap from="/topic_1" to="/data/interpreter/location/robot"/>
+        <remap from="/topic_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/signal" to="/signal/calc/robot_in_collision"/>
+    </node>
+
+    <node pkg="araig_calculators" type="rosbagger_node" name="bag_video" >
+        <remap from="/start" to="/signal/runner/enable_robot"/>
+        <remap from="/stop" to="/signal/calc/robot_reached_goal_and_stopped"/>
+    </node>
+
+</launch>
