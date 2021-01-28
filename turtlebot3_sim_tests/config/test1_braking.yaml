@@ -1,0 +1,60 @@
+runner:
+  timeout_after_max_speed: 2
+  timeout_after_complete: 3
+    
+interpreters:
+  velocity_interpreter_node: # node name 
+    max_vel: 0.8
+    rate: 100
+
+calculators:
+  dest_dir: ""
+  robot_type: "turtlebot3_sim"
+  test_type: "test1_braking"
+
+  robot_reached_max_vel_node: # node name 
+    param: 0.8
+    tolerance: 0.01
+  
+  robot_has_stopped_node: # node name 
+    param: 0.0
+    tolerance: 0.005
+
+  braking_time_node:
+    if_log: True
+
+  param_logger_node:
+    start_offset: 0.5
+    stop_offset: 0.5
+    namespaces: 
+      - "runner"
+      - "interpreters"
+      - "calculators"
+  
+  results_logger_node:
+    start_offset: 0.5
+    stop_offset: 0.1
+    logginng_topics: 
+      - /data/calc/braking_time
+      - /data/calc/braking_distance
+
+  folder_bagger_node:
+    start_offset: 1 # sleep after creating folder
+    stop_offset: 2 # sleep before killing
+    blacklist:
+      - /sensor_usb_cam/image_raw/compressed/parameter_updates
+      - /sensor_usb_cam/image_raw/compressed/parameter_descriptions
+      - /sensor_usb_cam/image_raw/compressedDepth
+      - /sensor_usb_cam/image_raw/compressedDepth/parameter_descriptions
+      - /sensor_usb_cam/image_raw/compressedDepth/parameter_updates
+      - /sensor_usb_cam/image_raw/theora
+      - /sensor_usb_cam/image_raw/theora/parameter_descriptions
+      - /sensor_usb_cam/image_raw/theora/parameter_updates
+      - /sensor_usb_cam2/image_raw/compressed/parameter_updates
+      - /sensor_usb_cam2/image_raw/compressed/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/compressedDepth
+      - /sensor_usb_cam2/image_raw/compressedDepth/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/compressedDepth/parameter_updates
+      - /sensor_usb_cam2/image_raw/theora
+      - /sensor_usb_cam2/image_raw/theora/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/theora/parameter_updates

@@ -1,0 +1,111 @@
+<launch>   
+<!-- run rostest 1 -->
+    <arg name="test" default="1"/>
+
+    <rosparam command="load" file="$(find turtlebot3_sim_tests)/config/test5_with_nav.yaml" />
+
+<!-- test runner -->
+    <node pkg="araig_test_runners" type="test_5_with_nav" name="test_5_with_nav_runner" output="screen">
+    </node>
+
+<!-- interpreter -->
+    <node pkg="araig_interpreters" type="goal_interpreter" name="goal_interpreter_node" output="screen">
+        <remap from="/goal" to="/data/interpreter/goal"/>
+        <remap from="/start" to="/signal/runner/start_robot"/>
+        <remap from="/result" to="/move_base/result"/>
+        <remap from="/done" to="/signal/interpreter/done"/>
+    </node>
+
+    <!-- goal frame -->
+    <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="goal_tf2_broadcaster_node" output="screen" />
+
+<!-- calculators -->
+    <!-- if use gazebo, use /amcl_pose as the location of robot -->
+    <node name="focus_pose" pkg="topic_tools" type="transform" args="/amcl_pose /data/interpreter/location/robot geometry_msgs/PoseStamped 
+    'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp),pose=m.pose.pose)' --import geometry_msgs std_msgs" />
+    
+    <!-- pub fake obstacle_location  -->
+    <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub -l /data/interpreter/location/obstacle geometry_msgs/PoseStamped
+    '{
+        header:{
+            frame_id: '/map'
+        },
+        pose:{  
+            position: {
+                x: 0.4,
+                y: 0.0,
+                z: 0.0},
+            orientation: {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+                w: 1.0}
+                }
+        }'"/>
+
+    <!-- get speed from /odom -->
+    <node name="focus_odom_x" pkg="topic_tools" type="transform" args="/odom /data/robot/odom/twist/linear_x std_msgs/Float64 'm.twist.twist.linear.x'" />
+    
+    <!-- robot_has_stopped_node -->
+    <node pkg="araig_calculators" type="comp_param_node" name="robot_has_stopped_node" output="screen">
+        <remap from="/in_float" to="/data/robot/odom/twist/linear_x"/>
+        <remap from="/out_bool" to="/signal/calc/robot_has_stopped"/>
+    </node>
+
+    <!-- robot_reached_goal_node -->
+    <node pkg="araig_calculators" type="comp_poses_node" name="robot_reached_goal_node" output="screen">
+        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
+        <remap from="/in_pose_2" to="/data/interpreter/goal"/>
+        <remap from="/out_bool" to="/signal/calc/robot_reached_goal"/>
+    </node>
+
+    <!-- robot_in_collision_node -->
+    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
+        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
+        <!-- need create a fake one -->
+        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/out_bool" to="/signal/calc/robot_in_collision"/>
+    </node>
+
+    <!-- goal_and_stop_node -->
+    <node pkg="araig_calculators" type="comp_topics_node" name="goal_and_stop_node" output="screen">
+        <remap from="/in_bool_1" to="/signal/calc/robot_has_stopped"/>
+        <remap from="/in_bool_2" to="/signal/calc/robot_reached_goal"/>
+        <remap from="/out_bool" to="/signal/calc/robot_reached_goal_and_stopped"/>
+    </node>
+    
+    <!-- goal_time_node -->
+    <node pkg="araig_calculators" type="diff_time_node" name="goal_time_node" output="screen">
+        <remap from="/in_start" to="/signal/runner/start_robot"/>
+        <remap from="/in_stop" to="/signal/calc/robot_reached_goal_and_stopped"/>
+        <remap from="/out_duration" to="/data/calc/goal_time"/>
+    </node>
+
+    <!-- logging -->
+    <!-- folder_bagger_node -->
+    <node pkg="araig_calculators" type="rosbagger_node" name="folder_bagger_node" output="screen">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/test_failed" to="/signal/runner/test_failed"/>
+        <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+    </node>
+
+    <!-- param_logger_node -->
+    <node pkg="araig_calculators" type="rosparam_logger_node" name="param_logger_node" output="log">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+    </node>
+
+    <!-- results_logger_node -->
+    <node pkg="araig_calculators" type="results_logger_node" name="results_logger_node" output="log">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/test_failed" to="/signal/runner/test_failed"/>
+        <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+    </node>
+
+    <node name="plotter" type="rqt_multiplot" pkg="rqt_multiplot"
+        args="--multiplot-config $(find cob_tests)/config/plotter/speed_position.xml --multiplot-run-all">
+    </node>
+
+</launch>

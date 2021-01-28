@@ -1,0 +1,30 @@
+<launch>
+  <arg name="gui" default="false"/>
+  <!-- simulation with gazebo no gui -->
+  <include file="$(find turtlebot3_sim_tests)/launch/includes/gazebo_sim.launch">
+      <arg name="gazebo_gui" value="$(arg gui)"/>
+      <arg name="world_name" value="turtlebot3_world"/>
+  </include>
+
+  <!-- delay 1s -->
+  <include file="$(find turtlebot3_sim_tests)/launch/includes/timed_roslaunch.launch">
+    <arg name="time" value="1" />
+    <arg name="pkg" value="turtlebot3_sim_tests" />
+    <arg name="file" value="navigation.launch" />
+    <arg name="node_name" value="navigation"/>
+    <arg name="value" value="rviz_gui:=$(arg gui)" />
+  </include>
+
+  <!-- delay 2s -->
+  <include file="$(find turtlebot3_sim_tests)/launch/includes/timed_roslaunch.launch">
+    <arg name="time" value="2" />
+    <arg name="pkg" value="turtlebot3_sim_tests" />
+    <arg name="file" value="test_5_with_nav.launch" />
+    <arg name="node_name" value="test_5_with_nav"/>
+  </include>
+  
+
+  <test time-limit="140" test-name="test5_with_nav" pkg="turtlebot3_sim_tests" type="test5_with_nav.py">
+  </test>
+
+</launch>
