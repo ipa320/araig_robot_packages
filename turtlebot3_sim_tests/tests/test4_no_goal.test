@@ -1,0 +1,13 @@
+<launch>
+  <!-- simulation -->
+  <arg name="rviz_gui" default="false"/>
+  <include file="$(find turtlebot3_sim_tests)/launch/includes/turtlebot_fake.launch">
+      <arg name="rviz_gui" value="$(arg rviz_gui)" />
+  </include>
+  
+  <include file="$(find turtlebot3_sim_tests)/launch/test4_no_goal.launch" />
+
+  <test time-limit="140" test-name="test1" pkg="turtlebot3_sim_tests" type="test4_no_goal.py">
+  </test>
+
+</launch>
