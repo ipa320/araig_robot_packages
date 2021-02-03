@@ -1,0 +1,76 @@
+runner:
+    timeout_after_complete: 3
+
+interpreters:
+  velocity_interpreter_node: # node name 
+    max_vel: 0.25
+    rate: 100
+
+calculators:
+  dest_dir: ""
+  robot_type: "mobika"
+  test_type: "test1_emergency"
+  
+  robot_has_stopped_node: # node name 
+    param: 0.0
+    tolerance: 0.005
+  
+  braking_distance_node:
+    if_log: "true"
+
+  braking_time_node:
+    if_log: "true"
+
+  folder_manager_node:
+    start_offset: 0.5
+    stop_offset: 4 # after offset will rename folder with test result, only can do it after rosbag closed
+
+  param_logger_node:
+    start_offset: 1
+    stop_offset: 0.5
+    namespaces: 
+      - "runner"
+      - "interpreters"
+      - "calculators"
+  
+  results_logger_node:
+    start_offset: 0.5
+    stop_offset: 0.1
+    logginng_topics: 
+      - /data/calc/braking_time
+      - /data/calc/braking_distance
+
+  bag_video_node:
+    start_offset: 1 # Wait these many seconds before strat
+    stop_offset: 2 # Wait these many seconds before killing
+    blacklist:
+      - /sensor_usb_cam/image_raw/compressed/parameter_updates
+      - /sensor_usb_cam/image_raw/compressed/parameter_descriptions
+      - /sensor_usb_cam/image_raw/compressedDepth
+      - /sensor_usb_cam/image_raw/compressedDepth/parameter_descriptions
+      - /sensor_usb_cam/image_raw/compressedDepth/parameter_updates
+      - /sensor_usb_cam/image_raw/theora
+      - /sensor_usb_cam/image_raw/theora/parameter_descriptions
+      - /sensor_usb_cam/image_raw/theora/parameter_updates
+      - /sensor_usb_cam2/image_raw/compressed/parameter_updates
+      - /sensor_usb_cam2/image_raw/compressed/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/compressedDepth
+      - /sensor_usb_cam2/image_raw/compressedDepth/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/compressedDepth/parameter_updates
+      - /sensor_usb_cam2/image_raw/theora
+      - /sensor_usb_cam2/image_raw/theora/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/theora/parameter_updates
+    whitelist:
+      - /signal/robot/emergency
+      - /signal/calc/robot_has_stopped
+      - /signal/ui/start_test
+      - /signal/ui/interrupt_test
+      - /signal/ui/reset_test
+      - /signal/runner/start_robot
+      - /signal/runner/test_completed
+      - /signal/runner/test_failed
+      - /signal/runner/test_succeeded
+      - /data/calc/braking_time
+      - /data/robot/odom/twist/linear_x
+      - /data/calc/braking_distance
+      - /data/interpreter/location/robot

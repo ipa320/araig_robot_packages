@@ -1,0 +1,112 @@
+runner:
+  timeout_check_goal: 2
+  timeout_after_complete: 3
+  
+interpreters: 
+  goal_interpreter_node: # node name 
+    goal:
+      frame_id: map
+      position:
+        x: 0
+        y: 0
+        z: 0
+      yaw: 1.57 # degree
+    goal_action: move_base # if "None", won't use action
+    wait_action: 5 # time for waiting for action available
+    rate: 100
+  goal_tf2_broadcaster_node:
+    goal:
+      frame_id: map
+      child_frame_id: goal
+      position:
+        x: 0
+        y: 0
+        z: 0
+      yaw: 1.57 # degree
+  obstacle_tf2_broadcaster_node:
+    goal:
+      child_frame_id: obstacle
+      frame_id: map
+      position:
+        x: -1
+        y: 0
+        z: 0
+      yaw: 1.57 # degree
+
+calculators:
+  dest_dir: "/home/rachel/ARAIG"
+  robot_type: "mobika"
+  test_type: "test4_static_obstacle"
+
+  robot_has_stopped_node: # node name 
+    param: 0.0
+    tolerance: 0.005
+
+  robot_in_collision_node: # node name
+    pose_tolerance: 0.5 # Threshold for pose (meter)
+    orientation_tolerance: None # Threshold for orientation (Quaternion, radian) for goal pose
+
+  robot_reached_goal_node: # node name
+    pose_tolerance: 0.05
+    orientation_tolerance: None
+  
+  goal_and_stop_node: # node name
+    tolerance: 0 
+
+  goal_time_node:
+    if_log: "true"
+
+  folder_manager_node:
+    start_offset: 0.5
+    stop_offset: 4 # after offset will rename folder with test result, only can do it after rosbag closed
+
+  param_logger_node:
+    start_offset: 1
+    stop_offset: 0.5
+    namespaces: 
+      - "runner"
+      - "interpreters"
+      - "calculators"
+  
+  results_logger_node:
+    start_offset: 0.5
+    stop_offset: 0.1
+    logginng_topics: 
+      - /data/calc/goal_time
+
+  bag_video_node:
+    dest_dir: "/home/rachel/ARAIG/bags" # Full path required. Saves bags here.
+    start_offset: 1 # Wait these many seconds before strat
+    stop_offset: 2 # Wait these many seconds before killing
+    blacklist:
+      - /sensor_usb_cam/image_raw/compressed/parameter_updates
+      - /sensor_usb_cam/image_raw/compressed/parameter_descriptions
+      - /sensor_usb_cam/image_raw/compressedDepth
+      - /sensor_usb_cam/image_raw/compressedDepth/parameter_descriptions
+      - /sensor_usb_cam/image_raw/compressedDepth/parameter_updates
+      - /sensor_usb_cam/image_raw/theora
+      - /sensor_usb_cam/image_raw/theora/parameter_descriptions
+      - /sensor_usb_cam/image_raw/theora/parameter_updates
+      - /sensor_usb_cam2/image_raw/compressed/parameter_updates
+      - /sensor_usb_cam2/image_raw/compressed/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/compressedDepth
+      - /sensor_usb_cam2/image_raw/compressedDepth/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/compressedDepth/parameter_updates
+      - /sensor_usb_cam2/image_raw/theora
+      - /sensor_usb_cam2/image_raw/theora/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/theora/parameter_updates
+    whitelist:
+      - /signal/calc/robot_reached_goal
+      - /signal/calc/robot_has_stopped
+      - /signal/calc/robot_reached_goal_and_stopped
+      - /signal/ui/start_test
+      - /signal/ui/interrupt_test
+      - /signal/ui/reset_test
+      - /signal/runner/start_robot
+      - /signal/runner/test_completed
+      - /signal/runner/test_failed
+      - /signal/runner/test_succeeded
+      - /data/robot/odom/twist/linear_x
+      - /data/interpreter/location/robot
+      - /data/interpreter/location/obstacle
+      - /data/calc/goal_time
