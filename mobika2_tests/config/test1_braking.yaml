@@ -1,0 +1,51 @@
+interpreters:
+  velocity_interpreter_node: # node name 
+    # mobika max speed is 0.25
+    max_vel: 0.25
+    rate: 100
+
+calculators:
+  file_prefix: "mobika_test1_braking" # All calculators will prefix this to filenames that they write to.
+
+  robot_reached_max_vel_node: # node name 
+    param: 0.25
+    tolerance: 0.001
+  
+  robot_has_stopped_node: # node name 
+    param: 0.0
+    tolerance: 0.001
+
+  bag_video_node:
+    dest_dir: "/home/rachel/ARAIG/bags" # Full path required. Saves bags here.
+    stop_offset: 2 # Wait these many seconds before killing
+    blacklist:
+      - /sensor_usb_cam/image_raw/compressed/parameter_updates
+      - /sensor_usb_cam/image_raw/compressed/parameter_descriptions
+      - /sensor_usb_cam/image_raw/compressedDepth
+      - /sensor_usb_cam/image_raw/compressedDepth/parameter_descriptions
+      - /sensor_usb_cam/image_raw/compressedDepth/parameter_updates
+      - /sensor_usb_cam/image_raw/theora
+      - /sensor_usb_cam/image_raw/theora/parameter_descriptions
+      - /sensor_usb_cam/image_raw/theora/parameter_updates
+      - /sensor_usb_cam2/image_raw/compressed/parameter_updates
+      - /sensor_usb_cam2/image_raw/compressed/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/compressedDepth
+      - /sensor_usb_cam2/image_raw/compressedDepth/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/compressedDepth/parameter_updates
+      - /sensor_usb_cam2/image_raw/theora
+      - /sensor_usb_cam2/image_raw/theora/parameter_descriptions
+      - /sensor_usb_cam2/image_raw/theora/parameter_updates
+    whitelist:
+      - /signal/calc/robot_has_max_vel
+      - /signal/calc/robot_has_stopped
+      - /signal/ui/start_test
+      - /signal/ui/interrupt_test
+      - /signal/ui/reset_test
+      - /signal/runner/start_robot
+      - /signal/runner/test_completed
+      - /signal/runner/test_failed
+      - /signal/runner/test_succeeded
+      - /data/calc/braking_time
+      - /data/robot/odom/twist/linear_x
+      - /data/calc/braking_distance
+      - /data/interpreter/location/robot
