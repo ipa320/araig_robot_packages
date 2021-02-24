@@ -15,7 +15,7 @@
     </node>
 
     <!-- goal frame -->
-    <node pkg="araig_interpreters" type="goal_pose_tf_broadcaster" name="goal_tf2_broadcaster_node" output="screen" />
+    <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="goal_tf2_broadcaster_node" output="screen" />
 
 <!-- calculators -->
     <!-- if use gazebo, use /amcl_pose as the location of robot -->

@@ -17,6 +17,7 @@ interpreters:
   goal_tf2_broadcaster_node:
     goal:
       frame_id: map
+      child_frame_id: goal
       position:
         x: -0.26
         y: -1.88
