@@ -87,7 +87,7 @@ class Test1Braking(unittest.TestCase):
             delta= 0.0)
 
             # pub /signal/ui/reset_test
-            rospy.sleep(4)
+            rospy.sleep(5)
             pub_msg.data = True
             pub_msg.header.stamp = rospy.Time.now()
             self.pub_reset.publish(pub_msg)
@@ -101,10 +101,6 @@ class Test1Braking(unittest.TestCase):
             self.counter +=1
             pub_msg = BoolStamped()
             pub_msg.data = True
-            # pub /signal/ui/reset_test
-            pub_msg.header.stamp = rospy.Time.now()
-            self.pub_reset.publish(pub_msg)
-            rospy.sleep(1)
 
             pub_msg.header.stamp = rospy.Time.now()
             # pub /signal/ui/start_test
@@ -136,8 +132,14 @@ class Test1Braking(unittest.TestCase):
             self.assertTrue(self.result_failed, 
             msg = 'Test{}: Test_Failed should be True, but get {}'.format(self.counter, self.result_failed))
 
+            # pub /signal/ui/reset_test
+            rospy.sleep(5)
+            pub_msg.header.stamp = rospy.Time.now()
+            self.pub_reset.publish(pub_msg)
+            rospy.sleep(1)
+
             self.result_failed = None
-            rospy.sleep(4)
+            rospy.sleep(2)
 
     def callback_1(self, msg):
         self.result_distance = msg.data
