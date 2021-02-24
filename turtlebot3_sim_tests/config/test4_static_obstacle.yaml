@@ -23,7 +23,9 @@ interpreters:
       yaw: 1.57 # degree
 
 calculators:
-  file_prefix: "test4_static_obstacle" # All calculators will prefix this to filenames that they write to.
+  dest_dir: "/home/rachel/ARAIG"
+  robot_type: "turtlebot3_sim"
+  test_type: "test4_static_obstacle"
 
   robot_has_stopped_node: # node name 
     param: 0.0
@@ -40,8 +42,30 @@ calculators:
   goal_and_stop_node: # node name
     tolerance: 0 
 
+  goal_time_node:
+    if_log: "true"
+
+  folder_manager_node:
+    start_offset: 0.5
+    stop_offset: 4 # after offset will rename folder with test result, only can do it after rosbag closed
+
+  param_logger_node:
+    start_offset: 1
+    stop_offset: 0.5
+    namespaces: 
+      - "runner"
+      - "interpreters"
+      - "calculators"
+  
+  results_logger_node:
+    start_offset: 0.5
+    stop_offset: 0.1
+    logginng_topics: 
+      - /data/calc/goal_time
+
   bag_video_node:
     dest_dir: "/home/rachel/ARAIG/bags" # Full path required. Saves bags here.
+    start_offset: 1 # Wait these many seconds before strat
     stop_offset: 2 # Wait these many seconds before killing
     blacklist:
       - /sensor_usb_cam/image_raw/compressed/parameter_updates
