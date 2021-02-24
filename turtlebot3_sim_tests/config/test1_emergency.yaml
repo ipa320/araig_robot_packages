@@ -1,3 +1,6 @@
+runner:
+    timeout_after_complete: 3
+
 interpreters:
   velocity_interpreter_node: # node name 
     max_vel: 0.8
@@ -26,6 +29,7 @@ calculators:
     start_offset: 1
     stop_offset: 0.5
     namespaces: 
+      - "runner"
       - "interpreters"
       - "calculators"
   

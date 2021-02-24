@@ -1,5 +1,6 @@
 runner:
-  time_check_goal_again: 2
+  timeout_check_goal: 2
+  timeout_after_complete: 3
   
 interpreters: 
   goal_interpreter_node: # node name 
