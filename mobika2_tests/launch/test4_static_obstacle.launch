@@ -3,6 +3,13 @@
     <arg name="disable_marvel" default="false"/>
 
     <rosparam command="load" file="$(find mobika2_tests)/config/test4_static_obstacle.yaml" />
+    
+<!-- sensors -->
+    <include file="$(find mobika2_tests)/launch/includes/common.launch">
+        <args name="src1" value="$(arg cam1)" />
+        <args name="src2" value="$(arg cam2)" />
+        <args name="port" value="$(arg port)" />
+    </include>
 
 <!-- test runner -->
     <node pkg="araig_test_runners" type="test_4_static_obstacle" name="test_4_static_obstacle" output="screen">
@@ -16,7 +23,7 @@
 
     <!-- goal frame -->
     <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="goal_tf2_broadcaster_node" output="screen" />
-    
+
     <!-- static obstacle frame -->
     <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="obstacle_tf2_broadcaster_node" output="screen" />
 
@@ -81,6 +88,7 @@
     <!-- robot_in_collision_node -->
     <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
         <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
+        <!-- need create a fake one -->
         <remap from="/in_pose_2" to="/data/interpreter/location/obstacle"/>
         <remap from="/out_bool" to="/signal/calc/robot_in_collision"/>
     </node>
@@ -99,10 +107,33 @@
         <remap from="/out_duration" to="/data/calc/goal_time"/>
     </node>
 
-    <!-- bag_video_node -->
-    <node pkg="araig_calculators" type="rosbagger_node" name="bag_video_node">
+    <!-- logging -->
+    <!-- rosbagger_node -->
+    <node pkg="araig_calculators" type="rosbagger_node" name="bag_video_node" output="log">
         <remap from="/start" to="/signal/ui/start_test"/>
         <remap from="/stop" to="/signal/runner/test_completed"/>
+    </node>
+
+    <!-- folder_manager_node -->
+    <node pkg="araig_calculators" type="folderlogger_node" name="folder_manager_node" output="log">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/test_failed" to="/signal/runner/test_failed"/>
+        <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+    </node>
+
+    <!-- param_logger_node -->
+    <node pkg="araig_calculators" type="rosparam_logger_node" name="param_logger_node" output="log">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+    </node>
+
+    <!-- results_logger_node -->
+    <node pkg="araig_calculators" type="results_logger_node" name="results_logger_node" output="log">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/test_failed" to="/signal/runner/test_failed"/>
+        <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
     </node>
 
 </launch>
