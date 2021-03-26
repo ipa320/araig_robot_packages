@@ -41,7 +41,7 @@
         <node pkg="marvelmind_nav" type="hedge_rcv_bin" name="hedge_rcv_bin" />
 
         <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
-        <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
+        <remap from="/marvel_interpreter/beacon11" to="/data/interpreter/location/robot"/>
         </node>
     </group>
 

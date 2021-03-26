@@ -3,11 +3,11 @@ runner:
 
 interpreters:
   velocity_interpreter_node: # node name 
-    max_vel: 0.8
+    max_vel: 0.25
     rate: 100
 
 calculators:
-  dest_dir: "/home/rachel/ARAIG"
+  dest_dir: ""
   robot_type: "mobika"
   test_type: "test1_emergency"
   

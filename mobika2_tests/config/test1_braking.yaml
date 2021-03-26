@@ -1,5 +1,5 @@
 runner:
-    timeout_after_max_speed: 2
+    timeout_after_max_speed: 0.5
     timeout_after_complete: 3
     
 interpreters:
@@ -8,13 +8,13 @@ interpreters:
     rate: 100
 
 calculators:
-  dest_dir: "/home/rachel/ARAIG"
+  dest_dir: ""
   robot_type: "mobika"
   test_type: "test1_braking"
 
   robot_reached_max_vel_node: # node name 
     param: 0.25
-    tolerance: 0.001
+    tolerance: 0.06
   
   robot_has_stopped_node: # node name 
     param: 0.0
