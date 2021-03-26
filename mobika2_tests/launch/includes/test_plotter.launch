@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Before this, run TB3 gazebo launch, or any sim that takes /cmd_vel and gives /odom:  
+  roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch-->
+
+  <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub /cmd_vel geometry_msgs/Twist 
+        '{linear: {
+                x: 0.1,
+                y: 0.0,
+                z: 0.0},
+            angular: {
+                x: 0.0,
+                y: 0.0,
+                z: 0.1}
+                }' -r 10"/>
+
+<!-- This transformer is needed because the saved config expects this topic -->
+<!-- For a real test, this should not be needed since the marvel_interpreter provides this topic-->
+  <node name="transform_odom_to_pose" pkg="topic_tools" type="transform"
+    args="/odom /data/interpreter/location/robot geometry_msgs/PoseStamped 'geometry_msgs.msg.PoseStamped(
+      header=m.header,pose=m.pose.pose)' --import geometry_msgs"/>
+
+  <node name="plotter" type="rqt_multiplot" pkg="rqt_multiplot"
+    args="--multiplot-config $(find araig_calculators)/config/test1_multiplot.xml --multiplot-run-all">
+    <remap from="/robot/odom" to="/odom" />
+  </node>
+  
+
+</launch>
+
