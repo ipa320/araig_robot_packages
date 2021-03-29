@@ -3,26 +3,18 @@ runner:
   timeout_after_complete: 3
   
 interpreters: 
-  goal_interpreter_node: # node name 
-    goal:
-      frame_id: map
-      position:
-        x: -0.26
-        y: -1.88
-        z: 0
-      yaw: 1.57 # degree
-    goal_action: move_base # if "None", won't use action
-    wait_action: 5 # time for waiting for action available
-    rate: 100
-  goal_tf2_broadcaster_node:
-    goal:
-      frame_id: map
-      child_frame_id: goal
-      position:
-        x: -0.26
-        y: -1.88
-        z: 0
-      yaw: 1.57 # degree
+  goal:
+    frame_id: map
+    child_frame_id: goal
+    position:
+      x: -0.26
+      y: -1.88
+      z: 0
+    yaw: 1.57 # degree
+  goal_action: move_base # if "None", won't use action
+  wait_action: 5 # time for waiting for action available
+  rate: 100
+
 
 calculators:
   dest_dir: "/home/rachel/ARAIG"
@@ -44,8 +36,8 @@ calculators:
   goal_and_stop_node: # node name
     tolerance: 0 
 
-  goal_time_node:
-    if_log: "true"
+  # goal_time_node:
+  #   if_log: True
 
   folder_manager_node:
     start_offset: 0.5
