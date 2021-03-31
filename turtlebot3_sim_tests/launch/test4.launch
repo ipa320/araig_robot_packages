@@ -2,10 +2,10 @@
 <!-- run rostest 1 -->
     <arg name="test" default="1"/>
 
-    <rosparam command="load" file="$(find turtlebot3_sim_tests)/config/test4_static_obstacle.yaml" />
+    <rosparam command="load" file="$(find turtlebot3_sim_tests)/config/test4.yaml" />
 
 <!-- test runner -->
-    <node pkg="araig_test_runners" type="test_4_static_obstacle" name="test_4_static_obstacle" output="screen">
+    <node pkg="araig_test_runners" type="test_4" name="test_4_runner_node" output="screen">
     </node>
 
 <!-- interpreter -->
@@ -23,25 +23,6 @@
     <!-- if use gazebo, use /amcl_pose as the location of robot -->
     <node name="focus_pose" pkg="topic_tools" type="transform" args="/amcl_pose /data/interpreter/location/robot geometry_msgs/PoseStamped 
     'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp),pose=m.pose.pose)' --import geometry_msgs std_msgs" />
-    
-    <!-- pub fake obstacle_location  -->
-    <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub -l /data/interpreter/location/obstacle geometry_msgs/PoseStamped
-    '{
-        header:{
-            frame_id: '/map'
-        },
-        pose:{  
-            position: {
-                x: 0.4,
-                y: 0.0,
-                z: 0.0},
-            orientation: {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-                w: 1.0}
-                }
-        }'"/>
 
     <!-- get speed from /odom -->
     <node name="focus_odom_x" pkg="topic_tools" type="transform" args="/odom /data/robot/odom/twist/linear_x std_msgs/Float64 'm.twist.twist.linear.x'" />
@@ -59,14 +40,6 @@
         <remap from="/out_bool" to="/signal/calc/robot_reached_goal"/>
     </node>
 
-    <!-- robot_in_collision_node -->
-    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
-        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <!-- need create a fake one -->
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision"/>
-    </node>
-
     <!-- goal_and_stop_node -->
     <node pkg="araig_calculators" type="comp_topics_node" name="goal_and_stop_node" output="screen">
         <remap from="/in_bool_1" to="/signal/calc/robot_has_stopped"/>
@@ -82,14 +55,8 @@
     </node>
 
     <!-- logging -->
-    <!-- rosbagger_node -->
-    <node pkg="araig_calculators" type="rosbagger_node" name="bag_video_node" output="log">
-        <remap from="/start" to="/signal/ui/start_test"/>
-        <remap from="/stop" to="/signal/runner/test_completed"/>
-    </node>
-
-    <!-- folder_manager_node -->
-    <node pkg="araig_calculators" type="folderlogger_node" name="folder_manager_node" output="log">
+    <!-- folder_bagger_node -->
+    <node pkg="araig_calculators" type="rosbagger_node" name="folder_bagger_node" output="screen">
         <remap from="/start" to="/signal/ui/start_test"/>
         <remap from="/stop" to="/signal/runner/test_completed"/>
         <remap from="/test_failed" to="/signal/runner/test_failed"/>
@@ -110,4 +77,7 @@
         <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
     </node>
 
+    <node name="plotter" type="rqt_multiplot" pkg="rqt_multiplot"
+        args="--multiplot-config $(find turtlebot3_sim_tests)/config/plotter/speed_position.xml --multiplot-run-all">
+    </node>
 </launch>

@@ -2,7 +2,7 @@
 <!-- run rostest 1 -->
     <arg name="test" default="1"/>
 
-    <rosparam command="load" file="$(find turtlebot3_sim_tests)/config/test4_no_goal.yaml" />
+    <rosparam command="load" file="$(find turtlebot3_sim_tests)/config/test5_without_nav.yaml" />
 
 <!-- test runner -->
     <node pkg="araig_test_runners" type="test_4_no_goal" name="test_4_no_goal" output="screen">
@@ -65,14 +65,8 @@
     </node>
 
     <!-- logging -->
-    <!-- rosbagger_node -->
-    <node pkg="araig_calculators" type="rosbagger_node" name="bag_video_node" output="log">
-        <remap from="/start" to="/signal/ui/start_test"/>
-        <remap from="/stop" to="/signal/runner/test_completed"/>
-    </node>
-
-    <!-- folder_manager_node -->
-    <node pkg="araig_calculators" type="folderlogger_node" name="folder_manager_node" output="log">
+    <!-- folder_bagger_node -->
+    <node pkg="araig_calculators" type="rosbagger_node" name="folder_bagger_node" output="screen">
         <remap from="/start" to="/signal/ui/start_test"/>
         <remap from="/stop" to="/signal/runner/test_completed"/>
         <remap from="/test_failed" to="/signal/runner/test_failed"/>

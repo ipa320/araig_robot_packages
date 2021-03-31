@@ -19,12 +19,12 @@
   <include file="$(find turtlebot3_sim_tests)/launch/includes/timed_roslaunch.launch">
     <arg name="time" value="2" />
     <arg name="pkg" value="turtlebot3_sim_tests" />
-    <arg name="file" value="test4_static_obstacle.launch" />
-    <arg name="node_name" value="test4_static_obstacle"/>
+    <arg name="file" value="test4.launch" />
+    <arg name="node_name" value="test4"/>
   </include>
   
 
-  <test time-limit="140" test-name="test1" pkg="turtlebot3_sim_tests" type="test4_static_obstacle.py">
+  <test time-limit="140" test-name="test4" pkg="turtlebot3_sim_tests" type="test4.py">
   </test>
 
 </launch>

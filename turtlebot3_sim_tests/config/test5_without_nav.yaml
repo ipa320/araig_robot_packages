@@ -7,16 +7,16 @@ interpreters:
     rate: 100
 
 calculators:
-  dest_dir: "/home/rachel/ARAIG"
+  dest_dir: ""
   robot_type: "turtlebot3_sim"
-  test_type: "test4_no_goal"
+  test_type: "test5_without_nav"
 
   robot_has_stopped_node: # node name 
     param: 0.0
     tolerance: 0.005
 
-  # robot_stop_gap_node:
-  #   if_log: "true"
+  robot_stop_gap_node:
+    if_log: "true"
 
   robot_in_collision_node: # node name
     pose_tolerance: 0.5 # Threshold for pose (meter)
@@ -60,16 +60,3 @@ calculators:
       - /sensor_usb_cam2/image_raw/theora
       - /sensor_usb_cam2/image_raw/theora/parameter_descriptions
       - /sensor_usb_cam2/image_raw/theora/parameter_updates
-    whitelist:
-      - /signal/ui/start_test
-      - /signal/ui/interrupt_test
-      - /signal/ui/reset_test
-      - /signal/runner/start_robot
-      - /signal/runner/test_completed
-      - /signal/runner/test_failed
-      - /signal/runner/test_succeeded
-      - /data/calc/robot_stop_gap
-      - /signal/calc/robot_has_stopped
-      - /signal/calc/robot_in_collision
-      - /data/robot/odom/twist/linear_x
-      - /data/interpreter/location/robot

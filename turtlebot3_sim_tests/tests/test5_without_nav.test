@@ -5,9 +5,9 @@
       <arg name="rviz_gui" value="$(arg rviz_gui)" />
   </include>
   
-  <include file="$(find turtlebot3_sim_tests)/launch/test4_no_goal.launch" />
+  <include file="$(find turtlebot3_sim_tests)/launch/test5_without_nav.launch" />
 
-  <test time-limit="140" test-name="test1" pkg="turtlebot3_sim_tests" type="test4_no_goal.py">
+  <test time-limit="140" test-name="test5_without_nav" pkg="turtlebot3_sim_tests" type="test5_without_nav.py">
   </test>
 
 </launch>

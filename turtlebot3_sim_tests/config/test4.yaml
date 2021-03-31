@@ -1,28 +1,42 @@
 runner:
-    timeout_after_complete: 3
-
-interpreters:
-  velocity_interpreter_node: # node name 
-    max_vel: 0.8
-    rate: 100
+  timeout_check_goal: 2
+  timeout_after_complete: 3
+  timeout_after_interrupt: 10
+  
+interpreters: 
+  goal:
+    frame_id: map
+    child_frame_id: goal
+    position:
+      x: -0.26
+      y: -1.88
+      z: 0
+    yaw: 1.57 # degree
+  goal_action: move_base # if "None", won't use action
+  wait_action: 5 # time for waiting for action available
+  rate: 100
 
 calculators:
   dest_dir: ""
   robot_type: "turtlebot3_sim"
-  test_type: "test1_emergency"
-  
+  test_type: "test4_nav"
+
   robot_has_stopped_node: # node name 
     param: 0.0
     tolerance: 0.005
-  
-  braking_distance_node:
-    if_log: True
 
-  braking_time_node:
+  robot_reached_goal_node: # node name
+    pose_tolerance: 0.05
+    orientation_tolerance: 10
+  
+  goal_and_stop_node: # node name
+    tolerance: 0 
+
+  goal_time_node:
     if_log: True
 
   param_logger_node:
-    start_offset: 0.5
+    start_offset: 1
     stop_offset: 0.5
     namespaces: 
       - "runner"
@@ -33,8 +47,7 @@ calculators:
     start_offset: 0.5
     stop_offset: 0.1
     logginng_topics: 
-      - /data/calc/braking_time
-      - /data/calc/braking_distance
+      - /data/calc/goal_time
 
   folder_bagger_node:
     start_offset: 1 # sleep after creating folder
