@@ -1,0 +1,50 @@
+<launch>
+    <arg name="disable_marvel" default="false"/>
+
+    <rosparam command="load" file="$(find cob_tests)/config/test3.yaml" />
+
+    <arg name="src1" default ="/dev/video2" />
+    <arg name="src2" default ="/dev/video4" />
+    <arg name="port" default="/dev/ttyACM0" />
+<!-- sensors -->
+    <include file="$(find cob_tests)/launch/includes/common.launch">
+        <args name="src1" value="$(arg cam1)" />
+        <args name="src2" value="$(arg cam2)" />
+        <args name="port" value="$(arg port)" />
+    </include>
+
+    <node pkg="araig_calculators" type="rosbagger_node" name="folder_bagger_node" output="screen">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/test_failed" to="/signal/runner/test_failed"/>
+        <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+    </node>
+
+    <!-- calculators -->
+    <!-- get speed from /odom -->
+    <node name="focus_odom_x" pkg="topic_tools" type="transform" args="/base/odometry_controller/odometry /data/robot/odom/twist/linear_x std_msgs/Float64 'm.twist.twist.linear.x'" />
+    
+    <group if="$(arg disable_marvel)"> 
+        <!-- use /odom as the location of robot, mobika ddoes not have amcl-->
+        <node name="focus_pose" pkg="topic_tools" type="transform" args="/base/odometry_controller/odometry /data/interpreter/location/robot geometry_msgs/PoseStamped 
+        'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp),pose=m.pose.pose)' --import geometry_msgs std_msgs" />
+    </group>
+
+    <group unless ="$(arg disable_marvel)">
+            <!-- X Y Z Y P R transform of marvel origin frame wrt map frame. Needs to be physically measured. -->
+        <arg name="origin_pos" default="1.52 -2.37 0 0.55 0 0"/>
+
+        <!-- Publish static TF of the origin anchor to map -->
+        <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
+        
+        <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
+            <remap from="/marvel_interpreter/beacon11" to="/data/interpreter/location/robot"/>
+        </node>
+    </group>
+
+    <!-- speed plotter -->
+    <node name="plotter" type="rqt_multiplot" pkg="rqt_multiplot"
+        args="--multiplot-config $(find cob_tests)/config/plotter/speed_position.xml --multiplot-run-all">
+    </node>
+
+</launch>

@@ -1,0 +1,26 @@
+calculators:
+  dest_dir: ""
+  robot_type: "cob"
+  test_type: "test3"
+
+  folder_bagger_node:
+    start_offset: 1 # sleep after creating folder
+    stop_offset: 2 # sleep before killing
+    blacklist:
+      - compressed
+      - torso
+      - mimic
+      - bms
+      - collision_velocity_filter
+      - arm
+      - light 
+      - docker
+      - dashboard_agg
+      - gripper
+      - sound
+      - base
+      - script_server
+      - map
+      - scan
+      - sensorring
+      - image_view

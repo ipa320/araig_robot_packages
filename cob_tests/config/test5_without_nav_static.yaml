@@ -1,0 +1,60 @@
+runner:
+  timeout_check_goal: 2
+  timeout_after_complete: 3
+  timeout_after_interrupt_collision: 15
+  
+interpreters: 
+  velocity_interpreter_node: # node name 
+    max_vel: 0.3
+    rate: 100
+
+calculators:
+  dest_dir: ""
+  robot_type: "cob"
+  test_type: "test5_without_nav_static"
+
+  robot_in_collision_node: # node name
+    pose_tolerance: 0.5 # Threshold for pose (meter)
+    orientation_tolerance: None # Threshold for orientation (Quaternion, radian) for goal pose
+
+  robot_has_stopped_node: # node name 
+    param: 0.0
+    tolerance: 0.005
+
+  robot_stop_gap_node: # node name
+    if_log: True
+  
+  param_logger_node:
+    start_offset: 1
+    stop_offset: 0.5
+    namespaces: 
+      - "runner"
+      - "interpreters"
+      - "calculators"
+  
+  results_logger_node:
+    start_offset: 0.5
+    stop_offset: 0.1
+    logginng_topics: 
+      - /data/calc/robot_stop_gap
+      
+  folder_bagger_node:
+    start_offset: 1 # sleep after creating folder
+    stop_offset: 2 # sleep before killing
+    blacklist:
+      - compressed
+      - torso
+      - mimic
+      - bms
+      - collision_velocity_filter
+      - arm
+      - light 
+      - docker
+      - dashboard_agg
+      - gripper
+      - sound
+      - move_base
+      - script_server
+      - map
+      - scan
+      - sensorring
