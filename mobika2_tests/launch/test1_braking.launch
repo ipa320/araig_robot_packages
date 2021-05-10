@@ -29,7 +29,7 @@
     
     <!-- ONLY for TEST use /odom as the location of robot -->
     <group if="$(arg disable_marvel)"> 
-        <!-- use /odom as the location of robot, mobika ddoes not have amcl-->
+        <!-- use /odom as the location of robot, mobika does not have amcl-->
         <node name="focus_pose" pkg="topic_tools" type="transform" args="/odom /data/interpreter/location/robot geometry_msgs/PoseStamped 
         'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp),pose=m.pose.pose)' --import geometry_msgs std_msgs" />
     </group>
@@ -82,6 +82,7 @@
         <remap from="/stop" to="/signal/runner/test_completed"/>
         <remap from="/test_failed" to="/signal/runner/test_failed"/>
         <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+        <remap from="/out_begin_write" to="/signal/logger/begin_write"/>
     </node>
 
     <!-- param_logger_node -->
