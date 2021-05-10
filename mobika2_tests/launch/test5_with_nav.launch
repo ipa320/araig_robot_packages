@@ -4,7 +4,7 @@
     <arg name="dest_dir" default="$(env HOME)/ARAIG" />
     <param name="/calculators/dest_dir" value="$(arg dest_dir)" />
 
-    <rosparam command="load" file="$(find mobika2_tests)/config/test_5_with_nav.yaml" />
+    <rosparam command="load" file="$(find mobika2_tests)/config/test5_with_nav.yaml" />
     
 <!-- sensors -->
     <include file="$(find mobika2_tests)/launch/includes/common.launch">
