@@ -21,20 +21,47 @@
 <!-- calculators -->
     <!-- get speed from /odom -->
     <node name="focus_odom_x" pkg="topic_tools" type="transform" args="/odom /data/robot/odom/twist/linear_x std_msgs/Float64 'm.twist.twist.linear.x'" />
-  
-    <!-- X Y Z Y P R transform of marvel origin frame wrt map frame. Needs to be physically measured. -->
-    <arg name="origin_pos" default="1.52 -2.37 0 0.55 0 0"/>
+    
+    <group if="$(arg disable_marvel)"> 
+        <!-- use /odom as the location of robot, mobika ddoes not have amcl-->
+        <node name="focus_pose" pkg="topic_tools" type="transform" args="/odom /data/interpreter/location/robot geometry_msgs/PoseStamped 
+        'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp),pose=m.pose.pose)' --import geometry_msgs std_msgs" />
+    
+        <!-- pub fake obstacle_location  -->
+        <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub -l /data/interpreter/location/obstacle geometry_msgs/PoseStamped
+        '{
+            header:{
+                frame_id: '/map'
+            },
+            pose:{  
+                position: {
+                    x: 0,
+                    y: 1,
+                    z: 0.0},
+                orientation: {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                    w: 1.0}
+                    }
+            }'"/>
+    </group>
 
-    <!-- Publish static TF of the origin anchor to map -->
-    <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
+    <group unless ="$(arg disable_marvel)">
+        <!-- X Y Z Y P R transform of marvel origin frame wrt map frame. Needs to be physically measured. -->
+        <arg name="origin_pos" default="1.52 -2.37 0 0.55 0 0"/>
 
-    <node pkg="marvelmind_nav" type="hedge_rcv_bin" name="hedge_rcv_bin" />
+        <!-- Publish static TF of the origin anchor to map -->
+        <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
 
-    <!-- marvel_interpreter -->
-    <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
-     <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
-    <remap from="/marvel_interpreter/beacon7" to="/data/interpreter/location/obstacle"/>
-    </node>
+        <node pkg="marvelmind_nav" type="hedge_rcv_bin" name="hedge_rcv_bin" />
+
+        <!-- marvel_interpreter -->
+        <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
+        <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
+        <remap from="/marvel_interpreter/beacon7" to="/data/interpreter/location/obstacle"/>
+        </node>
+    </group>
 
     <!-- robot_has_stopped_node -->
     <node pkg="araig_calculators" type="comp_param_node" name="robot_has_stopped_node" output="screen">
