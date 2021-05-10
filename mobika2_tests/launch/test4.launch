@@ -14,7 +14,7 @@
     </include>
 
 <!-- test runner -->
-    <node pkg="araig_test_runners" type="test_4_static_obstacle" name="test_4_static_obstacle" output="screen">
+    <node pkg="araig_test_runners" type="test_4" name="test_4_runner_node" output="screen">
     </node>
 
 <!-- interpreter -->
