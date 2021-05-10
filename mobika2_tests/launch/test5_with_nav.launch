@@ -28,9 +28,6 @@
     <!-- goal frame -->
     <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="goal_tf2_broadcaster_node" output="screen" />
 
-    <!-- static obstacle frame -->
-    <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="obstacle_tf2_broadcaster_node" output="screen" />
-
 <!-- calculators -->
     <!-- get speed from /odom -->
     <node name="focus_odom_x" pkg="topic_tools" type="transform" args="/odom /data/robot/odom/twist/linear_x std_msgs/Float64 'm.twist.twist.linear.x'" />
@@ -41,7 +38,7 @@
         'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp),pose=m.pose.pose)' --import geometry_msgs std_msgs" />
     
         <!-- pub fake obstacle_location  -->
-        <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub -l /data/interpreter/location/obstacle geometry_msgs/PoseStamped
+        <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub -l /data/interpreter/location/obstacle/static geometry_msgs/PoseStamped
         '{
             header:{
                 frame_id: '/map'
@@ -58,6 +55,8 @@
                     w: 1.0}
                     }
             }'"/>
+        <!-- static obstacle frame -->
+        <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="obstacle_tf2_broadcaster_node" output="screen" />
     </group>
 
     <group unless ="$(arg disable_marvel)">

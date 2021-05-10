@@ -45,6 +45,8 @@
                     w: 1.0}
                     }
             }'"/>
+        <!-- static obstacle frame -->
+        <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="obstacle_tf2_broadcaster_node" output="screen" />
     </group>
 
     <group unless ="$(arg disable_marvel)">
@@ -91,6 +93,7 @@
         <remap from="/stop" to="/signal/runner/test_completed"/>
         <remap from="/test_failed" to="/signal/runner/test_failed"/>
         <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+        <remap from="/out_begin_write" to="/signal/logger/begin_write"/>
     </node>
 
     <!-- param_logger_node -->
