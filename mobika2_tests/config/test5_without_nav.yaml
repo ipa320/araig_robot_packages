@@ -1,44 +1,41 @@
 runner:
-  start_logging_offset: 10
-  stabilization_timeout: 0.25
-  acceleration_timeout: 2
-  verification_timeout: 0.25
-  decceleration_timeout: 2
-    
+  start_logging_offset: 2
+  goal_reach_timeout: 18
+  verification_timeout: 0.5
+
 interpreters:
-  velocity_interpreter_node: 
-    max_vel: 0.25
+  velocity_interpreter_node: # node name 
+    max_vel: 0.3
     rate: 100
 
 calculators:
   robot_type: "mobika"
-  test_type: "test1_braking"
-
-  robot_reached_max_vel_node: 
-    param: 0.25
-    tolerance: 0.06
+  test_type: "test5_without_nav"
   
-  robot_has_stopped_node:
+  robot_has_stopped_node: # node name 
     param: 0.0
-    tolerance: 0.001
+    tolerance: 0.005
 
-  braking_time_node:
+  robot_stop_gap_node:
     if_log: True
 
+  robot_in_collision_node: # node name
+    pose_tolerance: 0.5 # Threshold for pose (meter)
+    orientation_tolerance: None # Threshold for orientation (Quaternion, radian) for goal pose
+
   param_logger_node:
-    start_offset: 0.5
+    start_offset: 1
     stop_offset: 0.5
     namespaces: 
       - "runner"
       - "interpreters"
       - "calculators"
-  
+ 
   results_logger_node:
     start_offset: 0.5
     stop_offset: 0.1
     logginng_topics: 
-      - /data/calc/braking_time
-      - /data/calc/braking_distance
+      - /data/calc/robot_stop_gap
 
   folder_bagger_node:
     start_offset: 2 # Wait these many seconds before killing

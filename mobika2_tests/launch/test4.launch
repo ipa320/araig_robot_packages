@@ -1,8 +1,10 @@
 <launch>   
-<!-- run rostest 1 -->
     <arg name="disable_marvel" default="false"/>
 
-    <rosparam command="load" file="$(find mobika2_tests)/config/test4_static_obstacle.yaml" />
+    <arg name="dest_dir" default="$(env HOME)/ARAIG" />
+    <param name="/calculators/dest_dir" value="$(arg dest_dir)" />
+
+    <rosparam command="load" file="$(find mobika2_tests)/config/test4.yaml" />
     
 <!-- sensors -->
     <include file="$(find mobika2_tests)/launch/includes/common.launch">
@@ -19,46 +21,26 @@
     <node pkg="araig_interpreters" type="goal_interpreter" name="goal_interpreter_node" output="screen">
         <remap from="/goal" to="/data/interpreter/goal"/>
         <remap from="/start" to="/signal/runner/start_robot"/>
+        <remap from="/result" to="/move_base/result"/>
+        <remap from="/done" to="/signal/interpreter/done"/>
     </node>
 
     <!-- goal frame -->
     <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="goal_tf2_broadcaster_node" output="screen" />
-
-    <!-- static obstacle frame -->
-    <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="obstacle_tf2_broadcaster_node" output="screen" />
 
 <!-- calculators -->
     <!-- get speed from /odom -->
     <node name="focus_odom_x" pkg="topic_tools" type="transform" args="/odom /data/robot/odom/twist/linear_x std_msgs/Float64 'm.twist.twist.linear.x'" />
     
     <group if="$(arg disable_marvel)"> 
-        <!-- use /odom as the location of robot, mobika ddoes not have amcl-->
+        <!-- use /odom as the location of robot, mobika does not have amcl-->
         <node name="focus_pose" pkg="topic_tools" type="transform" args="/odom /data/interpreter/location/robot geometry_msgs/PoseStamped 
         'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp),pose=m.pose.pose)' --import geometry_msgs std_msgs" />
-    
-        <!-- pub fake obstacle_location  -->
-        <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub -l /data/interpreter/location/obstacle geometry_msgs/PoseStamped
-        '{
-            header:{
-                frame_id: '/map'
-            },
-            pose:{  
-                position: {
-                    x: 0,
-                    y: 1,
-                    z: 0.0},
-                orientation: {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                    w: 1.0}
-                    }
-            }'"/>
     </group>
 
     <group unless ="$(arg disable_marvel)">
         <!-- X Y Z Y P R transform of marvel origin frame wrt map frame. Needs to be physically measured. -->
-        <arg name="origin_pos" default="1.52 -2.37 0 0.55 0 0"/>
+        <arg name="origin_pos" default="1.57 -0.84 0 1.57 0 0"/>
 
         <!-- Publish static TF of the origin anchor to map -->
         <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
@@ -67,9 +49,7 @@
 
         <!-- marvel_interpreter -->
         <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
-            <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
-            <remap from="/marvel_interpreter/beacon7" to="/data/interpreter/location/obstacle/static"/>
-            <remap from="/marvel_interpreter/beacon8" to="/data/interpreter/location/obstacle/dynamic"/>
+            <remap from="/marvel_interpreter/beacon11" to="/data/interpreter/location/robot"/>
         </node>
     </group>
 
@@ -84,23 +64,6 @@
         <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
         <remap from="/in_pose_2" to="/data/interpreter/goal"/>
         <remap from="/out_bool" to="/signal/calc/robot_reached_goal"/>
-    </node>
-
-    <!-- robot_in_collision_node -->
-    <!-- static obstacle -->
-    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
-        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <!-- need create a fake one -->
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle/static"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/static"/>
-    </node>
-
-    <!-- dynamic obstacle -->
-    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
-        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <!-- need create a fake one -->
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle/dynamic"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/dynamic"/>
     </node>
 
     <!-- goal_and_stop_node -->
@@ -118,14 +81,8 @@
     </node>
 
     <!-- logging -->
-    <!-- rosbagger_node -->
-    <node pkg="araig_calculators" type="rosbagger_node" name="bag_video_node" output="log">
-        <remap from="/start" to="/signal/ui/start_test"/>
-        <remap from="/stop" to="/signal/runner/test_completed"/>
-    </node>
-
-    <!-- folder_manager_node -->
-    <node pkg="araig_calculators" type="folderlogger_node" name="folder_manager_node" output="log">
+    <!-- folder_bagger_node -->
+    <node pkg="araig_calculators" type="folder_bagger_node" name="folder_bagger_node" output="screen">
         <remap from="/start" to="/signal/ui/start_test"/>
         <remap from="/stop" to="/signal/runner/test_completed"/>
         <remap from="/test_failed" to="/signal/runner/test_failed"/>
@@ -145,5 +102,18 @@
         <remap from="/test_failed" to="/signal/runner/test_failed"/>
         <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
     </node>
+
+    <!-- Pose logger -->
+    <node pkg="araig_calculators" type="pose_series_logger_node" name="robot_pose_logger" output="screen">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/in_pose_stamped" to="/data/interpreter/location/robot"/>
+    </node>
+
+    <!-- RQT Multiplotter -->
+    <node name="plotter" type="rqt_multiplot" pkg="rqt_multiplot"
+        args="--multiplot-config $(find mobika2_tests)/config/plotter/speed_position.xml --multiplot-run-all">
+    </node>
+
 
 </launch>
