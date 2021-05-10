@@ -58,7 +58,7 @@
 
     <group unless ="$(arg disable_marvel)">
         <!-- X Y Z Y P R transform of marvel origin frame wrt map frame. Needs to be physically measured. -->
-        <arg name="origin_pos" default="1.52 -2.37 0 0.55 0 0"/>
+        <arg name="origin_pos" default="1.57 -0.84 0 1.57 0 0"/>
 
         <!-- Publish static TF of the origin anchor to map -->
         <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
@@ -67,9 +67,8 @@
 
         <!-- marvel_interpreter -->
         <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
-            <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
-            <remap from="/marvel_interpreter/beacon7" to="/data/interpreter/location/obstacle/static"/>
-            <remap from="/marvel_interpreter/beacon8" to="/data/interpreter/location/obstacle/dynamic"/>
+            <remap from="/marvel_interpreter/beacon11" to="/data/interpreter/location/robot"/>
+            <remap from="/marvel_interpreter/beacon10" to="/data/interpreter/location/obstacle"/>
         </node>
     </group>
 
@@ -87,20 +86,11 @@
     </node>
 
     <!-- robot_in_collision_node -->
-    <!-- static obstacle -->
     <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
         <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
         <!-- need create a fake one -->
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle/static"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/static"/>
-    </node>
-
-    <!-- dynamic obstacle -->
-    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
-        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <!-- need create a fake one -->
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle/dynamic"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/dynamic"/>
+        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/out_bool" to="/signal/calc/robot_in_collision"/>
     </node>
 
     <!-- goal_and_stop_node -->

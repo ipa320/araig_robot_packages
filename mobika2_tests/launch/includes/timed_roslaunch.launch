@@ -1,0 +1,16 @@
+<launch>
+  <arg name="time" default="0"/>
+  <arg name="pkg" default=""/>
+  <arg name="file" default=""/>
+  <arg name="value" default="" />
+  <arg name="output" default="true" />
+  <arg name="node_name" default="timed_roslaunch_$(arg time)_$(arg pkg)" />
+
+<group if="$(eval arg('output') == false)">
+  <node pkg="timed_roslaunch" type="timed_roslaunch.sh" args="$(arg time) $(arg pkg) $(arg file) $(arg value)" name="$(arg node_name)" />
+</group>
+
+<group if="$(eval arg('output') == true)">
+  <node pkg="timed_roslaunch" type="timed_roslaunch.sh" args="$(arg time) $(arg pkg) $(arg file) $(arg value)" name="$(arg node_name)" output="screen"/>
+</group>
+</launch>
