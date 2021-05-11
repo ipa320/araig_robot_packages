@@ -7,8 +7,11 @@
 
     <rosparam command="load" file="$(find mobika2_tests)/config/test5_without_nav.yaml" />
 
+<!-- sensors -->
+    <!-- START common.launch SEPARATELY ONCE TO AVOID HAVING TO RESTART EVERY TIME COZ MARVEL SUCKS MAN-->
+
 <!-- test runner -->
-    <node pkg="araig_test_runners" type="test_4_no_goal" name="test_4_no_goal" output="screen">
+    <node pkg="araig_test_runners" type="test_5_without_nav" name="test_5_without_nav" output="screen">
     </node>
 
 <!-- interpreters -->
@@ -56,12 +59,10 @@
         <!-- Publish static TF of the origin anchor to map -->
         <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
 
-        <node pkg="marvelmind_nav" type="hedge_rcv_bin" name="hedge_rcv_bin" />
-
         <!-- marvel_interpreter -->
         <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
-        <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
-        <remap from="/marvel_interpreter/beacon7" to="/data/interpreter/location/obstacle"/>
+        <remap from="/marvel_interpreter/beacon10" to="/data/interpreter/location/robot"/>
+        <remap from="/marvel_interpreter/beacon11" to="/data/interpreter/location/obstacle"/>
         </node>
     </group>
 

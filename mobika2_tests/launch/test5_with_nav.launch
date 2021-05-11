@@ -5,17 +5,15 @@
     <param name="/calculators/dest_dir" value="$(arg dest_dir)" />
 
     <rosparam command="load" file="$(find mobika2_tests)/config/test5_with_nav.yaml" />
-    
+
 <!-- sensors -->
-    <include file="$(find mobika2_tests)/launch/includes/common.launch">
-        <args name="src1" value="$(arg cam1)" />
-        <args name="src2" value="$(arg cam2)" />
-        <args name="port" value="$(arg port)" />
-    </include>
+    <!-- START common.launch SEPARATELY ONCE TO AVOID HAVING TO RESTART EVERY TIME COZ MARVEL SUCKS MAN-->
 
 <!-- test runner -->
     <node pkg="araig_test_runners" type="test_5_with_nav" name="test_5_with_nav_runner" output="screen">
     </node>
+
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mobika2_tests)/config/rviz/mb2_nav.rviz" />
 
 <!-- interpreter -->
     <node pkg="araig_interpreters" type="goal_interpreter" name="goal_interpreter_node" output="screen">
@@ -38,7 +36,7 @@
         'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp),pose=m.pose.pose)' --import geometry_msgs std_msgs" />
     
         <!-- pub fake obstacle_location  -->
-        <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub -l /data/interpreter/location/obstacle/static geometry_msgs/PoseStamped
+        <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub -l /data/interpreter/location/obstacle geometry_msgs/PoseStamped
         '{
             header:{
                 frame_id: '/map'
@@ -66,13 +64,10 @@
         <!-- Publish static TF of the origin anchor to map -->
         <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
 
-        <node pkg="marvelmind_nav" type="hedge_rcv_bin" name="hedge_rcv_bin" />
-
         <!-- marvel_interpreter -->
         <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
-            <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
-            <remap from="/marvel_interpreter/beacon7" to="/data/interpreter/location/obstacle/static"/>
-            <remap from="/marvel_interpreter/beacon8" to="/data/interpreter/location/obstacle/dynamic"/>
+            <remap from="/marvel_interpreter/beacon11" to="/data/interpreter/location/robot"/>
+            <remap from="/marvel_interpreter/beacon10" to="/data/interpreter/location/obstacle"/>
         </node>
     </group>
 
@@ -93,15 +88,8 @@
     <!-- static obstacle -->
     <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
         <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle/static"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/static"/>
-    </node>
-
-    <!-- dynamic obstacle -->
-    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
-        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle/dynamic"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/dynamic"/>
+        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/out_bool" to="/signal/calc/robot_in_collision"/>
     </node>
 
     <!-- goal_and_stop_node -->
@@ -125,6 +113,7 @@
         <remap from="/stop" to="/signal/runner/test_completed"/>
         <remap from="/test_failed" to="/signal/runner/test_failed"/>
         <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+        <remap from="/out_begin_write" to="/signal/logger/begin_write"/>        
     </node>
 
     <!-- param_logger_node -->
