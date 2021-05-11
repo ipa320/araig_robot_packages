@@ -2,30 +2,24 @@
 <!-- run rostest 1 -->
     <arg name="disable_marvel" default="false"/>
 
-    <rosparam command="load" file="$(find mobika2_tests)/config/test4_static_obstacle.yaml" />
-    
+    <arg name="dest_dir" default="$(env HOME)/ARAIG" />
+    <param name="/calculators/dest_dir" value="$(arg dest_dir)" />
+
+    <rosparam command="load" file="$(find mobika2_tests)/config/test5_without_nav.yaml" />
+
 <!-- sensors -->
-    <include file="$(find mobika2_tests)/launch/includes/common.launch">
-        <args name="src1" value="$(arg cam1)" />
-        <args name="src2" value="$(arg cam2)" />
-        <args name="port" value="$(arg port)" />
-    </include>
+    <!-- START common.launch SEPARATELY ONCE TO AVOID HAVING TO RESTART EVERY TIME COZ MARVEL SUCKS MAN-->
 
 <!-- test runner -->
-    <node pkg="araig_test_runners" type="test_4_static_obstacle" name="test_4_static_obstacle" output="screen">
+    <node pkg="araig_test_runners" type="test_5_without_nav" name="test_5_without_nav" output="screen">
     </node>
 
-<!-- interpreter -->
-    <node pkg="araig_interpreters" type="goal_interpreter" name="goal_interpreter_node" output="screen">
-        <remap from="/goal" to="/data/interpreter/goal"/>
+<!-- interpreters -->
+    <node pkg="araig_interpreters" type="velocity_interpreter" name="velocity_interpreter_node" output="screen">
         <remap from="/start" to="/signal/runner/start_robot"/>
+        <remap from="/stop" to="/signal/runner/stop_robot"/>
+        <remap from="/velocity" to="/cmd_vel"/>    
     </node>
-
-    <!-- goal frame -->
-    <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="goal_tf2_broadcaster_node" output="screen" />
-
-    <!-- static obstacle frame -->
-    <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="obstacle_tf2_broadcaster_node" output="screen" />
 
 <!-- calculators -->
     <!-- get speed from /odom -->
@@ -54,6 +48,8 @@
                     w: 1.0}
                     }
             }'"/>
+        <!-- static obstacle frame -->
+        <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="obstacle_tf2_broadcaster_node" output="screen" />
     </group>
 
     <group unless ="$(arg disable_marvel)">
@@ -63,13 +59,10 @@
         <!-- Publish static TF of the origin anchor to map -->
         <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
 
-        <node pkg="marvelmind_nav" type="hedge_rcv_bin" name="hedge_rcv_bin" />
-
         <!-- marvel_interpreter -->
         <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
-            <remap from="/marvel_interpreter/beacon6" to="/data/interpreter/location/robot"/>
-            <remap from="/marvel_interpreter/beacon7" to="/data/interpreter/location/obstacle/static"/>
-            <remap from="/marvel_interpreter/beacon8" to="/data/interpreter/location/obstacle/dynamic"/>
+        <remap from="/marvel_interpreter/beacon10" to="/data/interpreter/location/robot"/>
+        <remap from="/marvel_interpreter/beacon11" to="/data/interpreter/location/obstacle"/>
         </node>
     </group>
 
@@ -79,57 +72,29 @@
         <remap from="/out_bool" to="/signal/calc/robot_has_stopped"/>
     </node>
 
-    <!-- robot_reached_goal_node -->
-    <node pkg="araig_calculators" type="comp_poses_node" name="robot_reached_goal_node" output="screen">
-        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <remap from="/in_pose_2" to="/data/interpreter/goal"/>
-        <remap from="/out_bool" to="/signal/calc/robot_reached_goal"/>
-    </node>
-
     <!-- robot_in_collision_node -->
-    <!-- static obstacle -->
     <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
         <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <!-- need create a fake one -->
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle/static"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/static"/>
+        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/out_bool" to="/signal/calc/robot_in_collision"/>
     </node>
 
-    <!-- dynamic obstacle -->
-    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
-        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <!-- need create a fake one -->
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle/dynamic"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/dynamic"/>
-    </node>
-
-    <!-- goal_and_stop_node -->
-    <node pkg="araig_calculators" type="comp_topics_node" name="goal_and_stop_node" output="screen">
-        <remap from="/in_bool_1" to="/signal/calc/robot_has_stopped"/>
-        <remap from="/in_bool_2" to="/signal/calc/robot_reached_goal"/>
-        <remap from="/out_bool" to="/signal/calc/robot_reached_goal_and_stopped"/>
-    </node>
-    
-    <!-- goal_time_node -->
-    <node pkg="araig_calculators" type="diff_time_node" name="goal_time_node" output="screen">
-        <remap from="/in_start" to="/signal/runner/start_robot"/>
-        <remap from="/in_stop" to="/signal/calc/robot_reached_goal_and_stopped"/>
-        <remap from="/out_duration" to="/data/calc/goal_time"/>
+    <!-- robot_stop_gap_node -->
+    <node pkg="araig_calculators" type="diff_poses_spatial_node" name="robot_stop_gap_node" output="screen">
+        <remap from="/in_obj_1" to="/data/interpreter/location/robot"/>
+        <remap from="/in_obj_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/in_signal" to="/signal/calc/robot_has_stopped"/>
+        <remap from="out_disp_position" to="/data/calc/robot_stop_gap"/>
     </node>
 
     <!-- logging -->
-    <!-- rosbagger_node -->
-    <node pkg="araig_calculators" type="rosbagger_node" name="bag_video_node" output="log">
-        <remap from="/start" to="/signal/ui/start_test"/>
-        <remap from="/stop" to="/signal/runner/test_completed"/>
-    </node>
-
-    <!-- folder_manager_node -->
-    <node pkg="araig_calculators" type="folderlogger_node" name="folder_manager_node" output="log">
+    <!-- folder_bagger_node -->
+    <node pkg="araig_calculators" type="folder_bagger_node" name="folder_bagger_node" output="screen">
         <remap from="/start" to="/signal/ui/start_test"/>
         <remap from="/stop" to="/signal/runner/test_completed"/>
         <remap from="/test_failed" to="/signal/runner/test_failed"/>
         <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+        <remap from="/out_begin_write" to="/signal/logger/begin_write"/>
     </node>
 
     <!-- param_logger_node -->
@@ -144,6 +109,18 @@
         <remap from="/stop" to="/signal/runner/test_completed"/>
         <remap from="/test_failed" to="/signal/runner/test_failed"/>
         <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+    </node>
+
+    <!-- Speed logger -->
+    <node pkg="araig_calculators" type="float_series_logger_node" name="robot_speed_logger" output="screen">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/in_float" to="/data/robot/odom/twist/linear_x"/>
+    </node>
+
+    <!-- RQT Multiplotter -->
+    <node name="plotter" type="rqt_multiplot" pkg="rqt_multiplot"
+        args="--multiplot-config $(find mobika2_tests)/config/plotter/speed_position.xml --multiplot-run-all">
     </node>
 
 </launch>
