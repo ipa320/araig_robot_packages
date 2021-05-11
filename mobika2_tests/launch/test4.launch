@@ -21,6 +21,8 @@
         <remap from="/done" to="/signal/interpreter/done"/>
     </node>
 
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mobika2_tests)/config/rviz/mb2_nav.rviz" />
+    
     <!-- goal frame -->
     <node pkg="araig_interpreters" type="pose_tf_broadcaster" name="goal_tf2_broadcaster_node" output="screen" />
 
@@ -36,10 +38,10 @@
 
     <group unless ="$(arg disable_marvel)">
         <!-- X Y Z Y P R transform of marvel origin frame wrt map frame. Needs to be physically measured. -->
-        <arg name="origin_pos" default="1.57 -0.84 0 1.57 0 0"/>
+        <arg name="origin_pos" default="1.73 1.98 0 -0.523 0 0"/>
 
         <!-- Publish static TF of the origin anchor to map -->
-        <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
+        <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos) /marvel_origin /map 1"/>
 
         <!-- marvel_interpreter -->
         <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
@@ -48,7 +50,7 @@
     </group>
 
     <!-- robot_has_stopped_node -->
-    <node pkg="araig_calculators" type="comp_param_node" name="robot_has_stopped_node" output="screen">
+    <node pkg="araig_calculators" type="comp_param_node" name="robot_has_stopped_node" output="log">
         <remap from="/in_float" to="/data/robot/odom/twist/linear_x"/>
         <remap from="/out_bool" to="/signal/calc/robot_has_stopped"/>
     </node>
