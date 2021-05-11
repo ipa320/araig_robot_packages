@@ -11,7 +11,7 @@
     <!-- START common.launch SEPARATELY ONCE TO AVOID HAVING TO RESTART EVERY TIME COZ MARVEL SUCKS MAN-->
 
 <!-- test runner -->
-    <node pkg="araig_test_runners" type="test_4_no_goal" name="test_4_no_goal" output="screen">
+    <node pkg="araig_test_runners" type="test_5_without_nav" name="test_5_without_nav" output="screen">
     </node>
 
 <!-- interpreters -->
