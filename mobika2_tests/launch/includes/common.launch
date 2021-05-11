@@ -5,7 +5,7 @@
   <arg name="src2" default ="/dev/video4" />
   <arg name="port" default="/dev/ttyACM0" />
 
-  <node name="sensor_marvel" type="hedge_rcv_bin" pkg="marvelmind_nav" args="$(arg port)"/>
+  <node name="sensor_marvel" type="hedge_rcv_bin" pkg="marvelmind_nav" args="$(arg port)" output="screen"/>
   
   <node name="sensor_usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="$(arg src1)" />
