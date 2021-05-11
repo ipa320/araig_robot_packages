@@ -13,6 +13,8 @@
     <node pkg="araig_test_runners" type="test_5_with_nav" name="test_5_with_nav_runner" output="screen">
     </node>
 
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mobika2_tests)/config/rviz/mb2_nav.rviz" />
+
 <!-- interpreter -->
     <node pkg="araig_interpreters" type="goal_interpreter" name="goal_interpreter_node" output="screen">
         <remap from="/goal" to="/data/interpreter/goal"/>
@@ -64,8 +66,8 @@
 
         <!-- marvel_interpreter -->
         <node pkg="araig_interpreters" type="marvel_location_interpreter" name="marvel_interpreter" output="screen">
-            <remap from="/marvel_interpreter/beacon10" to="/data/interpreter/location/robot"/>
-            <remap from="/marvel_interpreter/beacon11" to="/data/interpreter/location/obstacle"/>
+            <remap from="/marvel_interpreter/beacon11" to="/data/interpreter/location/robot"/>
+            <remap from="/marvel_interpreter/beacon10" to="/data/interpreter/location/obstacle"/>
         </node>
     </group>
 
@@ -87,14 +89,7 @@
     <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
         <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
         <remap from="/in_pose_2" to="/data/interpreter/location/obstacle"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/static"/>
-    </node>
-
-    <!-- dynamic obstacle -->
-    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
-        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
-        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle"/>
-        <remap from="/out_bool" to="/signal/calc/robot_in_collision/dynamic"/>
+        <remap from="/out_bool" to="/signal/calc/robot_in_collision"/>
     </node>
 
     <!-- goal_and_stop_node -->
