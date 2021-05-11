@@ -17,7 +17,7 @@ calculators:
     tolerance: 0.005
 
   robot_stop_gap_node:
-    if_log: True
+    if_log: False
 
   robot_in_collision_node: # node name
     pose_tolerance: 0.5 # Threshold for pose (meter)
