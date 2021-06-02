@@ -1,0 +1,90 @@
+<launch>   
+<!-- run rostest 1 -->
+    <arg name="test" default="1"/>
+
+    <rosparam command="load" file="$(find turtlebot3_sim_tests)/config/test5_without_nav.yaml" />
+
+<!-- test runner -->
+    <node pkg="araig_test_runners" type="test_4_no_goal" name="test_4_no_goal" output="screen">
+    </node>
+
+<!-- interpreters -->
+    <node pkg="araig_interpreters" type="velocity_interpreter" name="velocity_interpreter_node" output="screen">
+        <remap from="/start" to="/signal/runner/start_robot"/>
+        <remap from="/stop" to="/signal/runner/stop_robot"/>
+        <remap from="/velocity" to="/cmd_vel"/>    
+    </node>
+
+<!-- calculators -->
+    <!-- get speed from /odom -->
+    <node name="focus_odom_x" pkg="topic_tools" type="transform" args="/odom /data/robot/odom/twist/linear_x std_msgs/Float64 'm.twist.twist.linear.x'" />
+    
+    <!-- ONLY for TEST use /odom as the location of robot -->
+    <node name="focus_pose" pkg="topic_tools" type="transform" args="/odom /data/interpreter/location/robot geometry_msgs/PoseStamped 
+    'geometry_msgs.msg.PoseStamped(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp),pose=m.pose.pose)' --import geometry_msgs std_msgs" />
+   
+    <!-- pub fake obstacle_location  -->
+    <node pkg="rostopic" type="rostopic" name="obstacle_location_node" args="pub -l /data/interpreter/location/obstacle geometry_msgs/PoseStamped
+    '{
+        header:{
+            frame_id: '/map'
+        },
+        pose:{  
+            position: {
+                x: 1.2,
+                y: 0.0,
+                z: 0.0},
+            orientation: {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+                w: 1.0}
+                }
+        }'"/>
+
+    <!-- robot_has_stopped_node -->
+    <node pkg="araig_calculators" type="comp_param_node" name="robot_has_stopped_node" output="screen">
+        <remap from="/in_float" to="/data/robot/odom/twist/linear_x"/>
+        <remap from="/out_bool" to="/signal/calc/robot_has_stopped"/>
+    </node>
+
+    <!-- robot_in_collision_node -->
+    <node pkg="araig_calculators" type="comp_poses_node" name="robot_in_collision_node" output="screen">
+        <remap from="/in_pose_1" to="/data/interpreter/location/robot"/>
+        <!-- need create a fake one -->
+        <remap from="/in_pose_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/out_bool" to="/signal/calc/robot_in_collision"/>
+    </node>
+
+    <!-- robot_stop_gap_node -->
+    <node pkg="araig_calculators" type="diff_poses_spatial_node" name="robot_stop_gap_node" output="screen">
+        <remap from="/in_obj_1" to="/data/interpreter/location/robot"/>
+        <remap from="/in_obj_2" to="/data/interpreter/location/obstacle"/>
+        <remap from="/in_signal" to="/signal/calc/robot_has_stopped"/>
+        <remap from="out_disp_position" to="/data/calc/robot_stop_gap"/>
+    </node>
+
+    <!-- logging -->
+    <!-- folder_bagger_node -->
+    <node pkg="araig_calculators" type="rosbagger_node" name="folder_bagger_node" output="screen">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/test_failed" to="/signal/runner/test_failed"/>
+        <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+    </node>
+
+    <!-- param_logger_node -->
+    <node pkg="araig_calculators" type="rosparam_logger_node" name="param_logger_node" output="log">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+    </node>
+
+    <!-- results_logger_node -->
+    <node pkg="araig_calculators" type="results_logger_node" name="results_logger_node" output="log">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/test_failed" to="/signal/runner/test_failed"/>
+        <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+    </node>
+
+</launch>

@@ -1,0 +1,8 @@
+<launch>     
+    <!-- emergency type to signal -->
+    <node name="focus_emergency" pkg="topic_tools" type="transform"
+    args="/emergency_stop_state /signal/robot/emergency araig_msgs/BoolStamped
+    'araig_msgs.msg.BoolStamped(header=std_msgs.msg.Header(stamp=rospy.Time.now()),
+    data=True if m.emergency_state==1 else False)' 
+        --import cob_msgs araig_msgs rospy std_msgs" />
+</launch>         
