@@ -1,6 +1,8 @@
 runner:
-    timeout_after_max_speed: 1.0
-    timeout_after_complete: 3
+  stabilization_timeout: 0.25
+  acceleration_timeout: 2
+  verification_timeout: 0.25
+  decceleration_timeout: 2
     
 interpreters:
   velocity_interpreter_node: # node name 
@@ -8,17 +10,16 @@ interpreters:
     rate: 100
 
 calculators:
-  dest_dir: ""
   robot_type: "cob"
   test_type: "test1_braking"
 
   robot_reached_max_vel_node: # node name 
     param: 0.3
-    tolerance: 0.1
+    tolerance: 0.05
   
   robot_has_stopped_node: # node name 
     param: 0.0
-    tolerance: 0.01
+    tolerance: 0.005
 
   braking_time_node:
     if_log: True
@@ -39,23 +40,19 @@ calculators:
       - /data/calc/braking_distance
 
   folder_bagger_node:
-    start_offset: 1 # sleep after creating folder
-    stop_offset: 2 # sleep before killing
+    start_offset: 0.5 # Wait these many seconds for folder to be created before start recording
+    stop_offset: 2 # Wait these many seconds before killing
+    whitelist:
+    # Default whitelist: ["/signal/", "/data", "usb_cam", "/tf"]
+    # Any topics which have one of these STRINGS in them will be added to the whitelist for recording,
+      - hedge
+      - ros
     blacklist:
+    # Any WHITELISTED topics which have one of these STRINGS in them will be rejected for recording
       - compressed
-      - torso
-      - mimic
-      - bms
-      - collision_velocity_filter
-      - arm
-      - light 
-      - docker
-      - dashboard_agg
-      - gripper
-      - sound
-      - base
-      - script_server
-      - map
-      - scan
-      - sensorring
-      - image_view
+
+  robot_speed_logger:
+    start_offset: 0.5 # Must be longer than folder bagger, since this tends to be created first.
+    stop_offset: 0.1
+    logged_data_title: "robot_speed" # Used to name the file
+    column_headers: ["Time", "Speed"]

@@ -1,0 +1,9 @@
+<!-- interpreter -->
+<launch>   
+    <node pkg="araig_interpreters" type="goal_interpreter" name="goal_interpreter_node" output="screen">
+        <remap from="/goal" to="/data/interpreter/goal"/>
+        <remap from="/start" to="/signal/runner/start_robot"/>
+        <remap from="/result" to="/move_base/result"/>
+        <remap from="/done" to="/signal/interpreter/done"/>
+    </node>
+    </launch>   

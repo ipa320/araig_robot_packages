@@ -1,7 +1,9 @@
 <launch>
     <arg name="disable_marvel" default="false"/>
+    <arg name="dest_dir" default="$(env HOME)/ARAIG" />
 
     <rosparam command="load" file="$(find cob_tests)/config/test1_braking.yaml" />
+    <param name="/calculators/dest_dir" value="$(arg dest_dir)" />
 
     <arg name="src1" default ="/dev/video2" />
     <arg name="src2" default ="/dev/video4" />
@@ -36,7 +38,7 @@
 
     <group unless ="$(arg disable_marvel)">
         <!-- X Y Z Y P R transform of marvel origin frame wrt map frame. Needs to be physically measured. -->
-        <arg name="origin_pos" default="1.52 -2.37 0 0.55 0 0"/>
+        <arg name="origin_pos" default="0 0 0 1.55 0 0"/>
 
         <!-- Publish static TF of the origin anchor to map -->
         <node pkg="tf" type="static_transform_publisher" name="marvel_tf" args=" $(arg origin_pos)  /map /marvel_origin 1"/>
@@ -74,12 +76,13 @@
     </node>
 
     <!-- logging -->
-    <!-- rosbagger_node -->
-    <node pkg="araig_calculators" type="rosbagger_node" name="folder_bagger_node" output="screen">
+    <!-- folder_bagger_node -->
+    <node pkg="araig_calculators" type="folder_bagger_node" name="folder_bagger_node" output="screen">
         <remap from="/start" to="/signal/ui/start_test"/>
         <remap from="/stop" to="/signal/runner/test_completed"/>
         <remap from="/test_failed" to="/signal/runner/test_failed"/>
         <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
+        <remap from="/out_begin_write" to="/signal/logger/begin_write"/>
     </node>
 
     <!-- param_logger_node -->
@@ -96,6 +99,13 @@
         <remap from="/test_succeeded" to="/signal/runner/test_succeeded"/>
     </node>
     
+    <!-- Speed logger -->
+    <node pkg="araig_calculators" type="float_series_logger_node" name="robot_speed_logger" output="screen">
+        <remap from="/start" to="/signal/ui/start_test"/>
+        <remap from="/stop" to="/signal/runner/test_completed"/>
+        <remap from="/in_float" to="/data/robot/odom/twist/linear_x"/>
+    </node>
+
     <!-- speed plotter -->
     <node name="plotter" type="rqt_multiplot" pkg="rqt_multiplot"
         args="--multiplot-config $(find cob_tests)/config/plotter/speed_position.xml --multiplot-run-all">
