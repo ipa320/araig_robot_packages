@@ -1,0 +1,21 @@
+calculators:
+  robot_type: "navel"
+  test_type: "test3"
+
+  folder_bagger_node:
+    start_offset: 2 # Wait these many seconds before killing
+    stop_offset: 2 # Wait these many seconds before killing
+    whitelist:
+    # Default whitelist: ["/signal/", "/data", "usb_cam", "/tf"]
+    # Any topics which have one of these STRINGS in them will be added to the whitelist for recording,
+      - hedge
+      - ros
+    blacklist:
+    # Any WHITELISTED topics which have one of these STRINGS in them will be rejected for recording
+      - compressed
+
+  param_logger_node:
+    start_offset: 1
+    stop_offset: 0.5
+    namespaces:
+      - "calculators"
